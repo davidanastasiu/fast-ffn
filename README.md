@@ -11,7 +11,7 @@ We present FAST_FFN, a highly efficient way of deploying large Feed Forward Netw
 ```
 ## Preliminaries
 
-We configured and trained candidate FFNs in an Anaconda environment with Python 3.8.20. We also created a code generator to create the accelerator code for the trained FFNs. Our code generator uses High Level Synthesis (HLS) to generate the accelerator. The following will create an Anaconda environment and install the requisite packages for training the FFNs and generating the FPGA accelerators for them.
+We configured and trained candidate FFNs in an Anaconda environment with Python 3.8.20. We also created a code generator to create the accelerator code for the trained FFNs. Our code generator uses High Level Synthesis (HLS) to generate the accelerator. The following will create an Anaconda environment and install the requisite packages for training the FFNs and generating the FPGA accelerators for them. 
 
 ```bash
 conda create --name fastffn python=3.8
@@ -24,3 +24,4 @@ conda install seaborn
 pip install h5pickle
 
 ```
+We completed the FPGA design flow (C-Similation->C-Synthesis->C/RTL Cos-simulation->Implementation) using the accelerator code in the Vitis HLS (2024.2) environment.
