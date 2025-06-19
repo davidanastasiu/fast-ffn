@@ -37,8 +37,7 @@ The 4 Folders:
 3. "Utils"
 4. "FPGA"
 
-
-1. The Radixnet folder hosts pre-pruned FFN architectures. RadixNet pre-pruning is employed to generate these FFNs. Our code includes RadixNet architectures in the Radixnets/RadixNet_Masks folder. These FFNs are stored using a tab separated value (.tsv) format. We used the repository available at (https://github.com/Graphegon/pygraphblas/blob/main/demo/RadiX-Net-with-pygraphblas.ipynb) to generate RadixNet architectures. In addition to hosting RadixNet architectures, this module also serves as the repository for trained FFN models, and the code to generate the masks required to train such models.  
+1.  The Radixnet folder hosts pre-pruned FFN architectures. RadixNet pre-pruning is employed to generate these FFNs. Our code includes RadixNet architectures in the Radixnets/RadixNet_Masks folder. These FFNs are stored using a tab separated value (.tsv) format. We used the repository available at (https://github.com/Graphegon/pygraphblas/blob/main/demo/RadiX-Net-with-pygraphblas.ipynb) to generate RadixNet architectures. In addition to hosting RadixNet architectures, this module also serves as the repository for trained FFN models, and the code to generate the masks required to train such models.  
 
 2. The Training folder contains the training code for training the RadixNet pre-pruned FFNs. FFNs can be trained using the command shown below, where -m indicates the bitwidth of model weights and -L indicates the number of layers in the FFN.
    ```bash
