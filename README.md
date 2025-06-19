@@ -16,12 +16,13 @@ We configured and trained candidate FFNs in an Anaconda environment with Python 
 ```bash
 conda create --name fast-ffn python=3.8
 conda activate fast-ffn
-conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+conda install pytorch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 pytorch-cuda=12.1 -c pytorch -c nvidia
 conda install scikit-learn
 conda install pandas
 conda install matplotlib
 conda install seaborn
 pip install h5pickle
+pip install brevitas
 
 ```
 We completed the FPGA design flow (C-Simulation->C-Synthesis->C/RTL Cos-simulation->Implementation) using the accelerator code in the Vitis HLS (2024.2) environment.
