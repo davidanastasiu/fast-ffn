@@ -25,3 +25,27 @@ pip install h5pickle
 
 ```
 We completed the FPGA design flow (C-Simulation->C-Synthesis->C/RTL Cos-simulation->Implementation) using the accelerator code in the Vitis HLS (2024.2) environment.
+
+## Files organization
+
+This project is divided into 4 sub-modules.These modules are listed below in the order they need to be executed.
+
+The 4 Modules:
+
+1. "Radixnets"
+2. "Training"
+3. "Utils"
+4. "FPGA"
+
+
+1. The Radixnet module hosts pre-pruned FFN architectures. RadixNet pre-pruning is employed to generate these FFNs. These FFNs are stored using a tab separated value (.tsv) format in the Radixnets/RadixNet_Masks folder. We used the repository available at (https://github.com/Graphegon/pygraphblas/blob/main/demo/RadiX-Net-with-pygraphblas.ipynb) to generate RadixNets.
+
+2. Set parameters. "sensor_id" and \epsilon should be set consistently in the 3 Jupyter notebooks. The other parameters (described in the paper) can be assigned separately in the code.
+
+3. Run the 3 Jupyter notebooks in any order or in parallel. After the training, the best models are saved in "./model" directory, and the forecasting results will be stored in the "./test" directory. 
+
+4. Use "TestResult_Merging.ipynb" to combine the 3 parts in "./test" to generate the final prediction file.
+
+## Inference mode
+
+This can be easily achieved by hiding the train_loop() code line in the 3 Jupyter Notebooks, once the model has been trained. The other steps are the same as during training since we still need to follow the same steps to preprocess the original data and get the GMM Indicators. Fortunately, this step only needs to be run one time. After that, "generate_test()" can be executed repeately with different test timestamps.
