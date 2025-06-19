@@ -24,4 +24,4 @@ conda install seaborn
 pip install h5pickle
 
 ```
-We completed the FPGA design flow (C-Similation->C-Synthesis->C/RTL Cos-simulation->Implementation) using the accelerator code in the Vitis HLS (2024.2) environment.
+We completed the FPGA design flow (C-Simulation->C-Synthesis->C/RTL Cos-simulation->Implementation) using the accelerator code in the Vitis HLS (2024.2) environment.
