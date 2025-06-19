@@ -50,7 +50,7 @@ The trained moodels are moved to Radixnets/RadixNet_Trained_Models folder upon t
 ###
 3. The Utils folder allows extraction of scale factors from trained quantized models, which are required to implement the forward pass. Our work uses 4-bit quantization. We use the Brevitas library to train models with 4-bit weights. A reliable way to extract scale factors from Brevitas trained models is to export the trained model to the Open Neural Network Exchange (ONNX) format and read the scale factors from the ONNX representation of the quantized model. Trained models can be exported to ONNX format as shown below -L indicates the number of layers in the FFN.
   ```bash
-   python onnx_export -L 2
+   python onnxexport -L 2
    ```
 The exported model can be used to read out the scale factors. Currently, this is a manual process wherein a .csv file (scales.csv) of scale factors needs to be created as shown below.
 ```bash
