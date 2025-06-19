@@ -38,15 +38,18 @@ The 4 Modules:
 4. "FPGA"
 
 
-1. The Radixnet module hosts pre-pruned FFN architectures. RadixNet pre-pruning is employed to generate these FFNs. Our code includes RadixNet architectures in the Radixnets/RadixNet_Masks folder. These FFNs are stored using a tab separated value (.tsv) format. We used the repository available at (https://github.com/Graphegon/pygraphblas/blob/main/demo/RadiX-Net-with-pygraphblas.ipynb) to generate RadixNet architectures. In addition to hosting RadixNet architectures this module also serves as the repository for trained FFN models, and the code to generate the masks required to train such models.  
+1. The Radixnet module hosts pre-pruned FFN architectures. RadixNet pre-pruning is employed to generate these FFNs. Our code includes RadixNet architectures in the Radixnets/RadixNet_Masks folder. These FFNs are stored using a tab separated value (.tsv) format. We used the repository available at (https://github.com/Graphegon/pygraphblas/blob/main/demo/RadiX-Net-with-pygraphblas.ipynb) to generate RadixNet architectures. In addition to hosting RadixNet architectures, this module also serves as the repository for trained FFN models, and the code to generate the masks required to train such models.  
 
-2. The Training module contains the training code for training the RadixNet pre-pruned FFNs. FFNs can be trained using the commend shown below, where -m indicates the bitwidth of model weights and -L indicates the number of layers in the FFN.
+2. The Training module contains the training code for training the RadixNet pre-pruned FFNs. FFNs can be trained using the command shown below, where -m indicates the bitwidth of model weights and -L indicates the number of layers in the FFN.
    ```bash
-   Train_Radixnets.py -m 4 -L 2
+   python Train_Radixnets.py -m 4 -L 2
    ```
+The trained moodels are moved to Radixnets/RadixNet_Trained_Models folder upon training completion.
    
-   
-4. Run the 3 Jupyter notebooks in any order or in parallel. After the training, the best models are saved in "./model" directory, and the forecasting results will be stored in the "./test" directory. 
+3. The Utils module allows extraction of scale factors from trained quantized models, which are required to implement the forward pass. Our work uses 4-bit quantization. We use the Brevitas library to train models with 4-bit weights. A reliable way to extract scale factors from Brevitas trained models is to export the trained model to the Open Neural Network Exchange (ONNX) format and read the scale factors from the ONNX representation of the quantized model. Trained models can be exported to ONNX format as shown below -L indicates the number of layers in the FFN.
+  ```bash
+   python onnx_export -L 2
+   ```
 
 5. Use "TestResult_Merging.ipynb" to combine the 3 parts in "./test" to generate the final prediction file.
 
