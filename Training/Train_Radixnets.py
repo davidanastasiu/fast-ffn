@@ -1,4 +1,4 @@
-#python iter_prune_mlp_2L_RadixNet.py -i mnist_data/train/mnist_train.csv -o output -t mnist_data/test/mnist_test.csv  -m 32 -c configs/train_config_threelayer.yml
+#python Train_Radixnets.py -m 4 -L 2
 import math
 import json
 import os
@@ -23,7 +23,7 @@ import torchvision
 import torchvision.transforms as transforms
 
 # Import our own code
-import mnist_dataset
+#import mnist_dataset
 from training.early_stopping import EarlyStopping
 from training.train_funcs import train, val, test_pruned as test
 from tools.aiq import calc_AiQ 
@@ -31,40 +31,21 @@ from training.training_plots import plot_total_loss, plot_total_eff, plot_metric
 from tools.param_count import countNonZeroWeights
 from tools.parse_yaml_config import parse_config
 
+import importlib.util
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.join(current_dir, '..')
+parent_dir = os.path.dirname(current_dir)
+#print(parent_dir)
 sys.path.append(os.path.abspath(parent_dir))
 
 from RadixNets.RadixNet_Masks.mask_maker import get_mask
-
-def import_files_with_digit(directory, digit):
-    """
-    Imports Python files from a directory that have a specific digit in their name.
-
-    Args:
-        directory: The directory path.
-        digit: The digit to filter by.
-    """
-    for path in Path(directory).glob("*.py"):
-        filename = path.stem  # Get filename without extension
-        match = re.search(r'\d+', filename) # Search for any digit
-        if match and str(digit) in match.group(0): # Check for specific digit
-            module_name = directory + "." + filename
-            try:
-                module = importlib.import_module(module_name)
-                print(f"Imported module: {module_name}")
-                # Use the imported module
-                # module.function_name()
-            except ImportError as e:
-                print(f"Error importing {module_name}: {e}")
-    return module
+from Datasets.mnist_dataset import MnistDataset
 
 
 if __name__ == "__main__":
     parser = OptionParser()
-    parser.add_option('-i','--input'   ,action='store',type='string',dest='inputFile'   ,default='', help='location of data to train off of')
-    parser.add_option('-o','--output'   ,action='store',type='string',dest='outputDir'   ,default='train_simple/', help='output directory')
-    parser.add_option('-t','--test'   ,action='store',type='string',dest='test'   ,default='', help='Location of test data set')
+    parser.add_option('-i','--input'   ,action='store',type='string',dest='inputFile'   ,default='../Datasets/mnist_data/train/mnist_train.csv', help='location of data to train off of')
+    parser.add_option('-t','--test'   ,action='store',type='string',dest='test'   ,default='../Datasets/mnist_data/test/mnist_test.csv', help='Location of test data set')
     parser.add_option('-l','--load', action='store', type='string', dest='modelLoad', default=None, help='Model to load instead of training new')
     parser.add_option('-c','--config'   ,action='store',type='string',dest='config'   ,default='configs/train_config_threelayer.yml', help='tree name')
     parser.add_option('-e','--epochs'   ,action='store',type='int', dest='epochs', default=10, help='number of epochs to train for')
@@ -81,17 +62,18 @@ if __name__ == "__main__":
 
     (options,args) = parser.parse_args()
     yamlConfig = parse_config(options.config)
-
+   
+    outputDir = '../RadixNets/RadixNet_Trained_Models/' + str(options.layers) +'L'
     # create given output directory if it doesnt exist
-    if not path.exists(options.outputDir):
-        os.makedirs(options.outputDir, exist_ok=True)
+    if not path.exists(outputDir):
+        os.makedirs(outputDir, exist_ok=True)
 
     
     #Used for pre-pruned networks
     prune_value_set = [0.0]
     prune_value_set.append(0)  # Last 0 is so the final iteration can fine tune before testing
     
-    mask = get_mask(options.layers,32)
+    mask = get_mask(options.layers,32, '../RadixNets/RadixNet_Masks/tsvs/tsv_')
 
     standard_mask = mask()
 
@@ -99,21 +81,28 @@ if __name__ == "__main__":
 
     print("Made {} Masks!".format(len(prune_mask_set)))
 
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+
     #import the specified model
-    directory_path = "RadixNet_Models"  
-    digit_to_match = options.layers
-    module = import_files_with_digit(directory_path, digit_to_match) 
+    module_name = "models_mlp_" + str(options.layers) + "_RadixNet.py"
+    directory_path = parent_dir + '/RadixNets/RadixNet_Models/' + module_name  
+    spec = importlib.util.spec_from_file_location("module.name", directory_path)
+    foo = importlib.util.module_from_spec(spec)
+    print(foo)
+    sys.modules["module.name"] = foo
+    spec.loader.exec_module(foo)
+ 
     
     # First model should be the "Base" model that all other accuracies are compared to!
     print("No batnorm")
-    models = {'32': module.model_masked(prune_mask_set[0]), #32b
-                '16': module.model_bv_masked(prune_mask_set[1],16), #12b
-                '8': module.model_bv_masked(prune_mask_set[2],8), #8b
-                '6': module.model_bv_masked(prune_mask_set[3],6), #6b
-                '4': module.model_bv_masked(prune_mask_set[4],4) #4b
+    models = {'32': foo.model_masked(prune_mask_set[0]), #32b
+                '16': foo.model_bv_masked(prune_mask_set[1],16), #12b
+                '8': foo.model_bv_masked(prune_mask_set[2],8), #8b
+                '6': foo.model_bv_masked(prune_mask_set[3],6), #6b
+                '4': foo.model_bv_masked(prune_mask_set[4],4) #4b
         }
     
-
     model_set = [models[m] for m in options.model_set.split(',')]
 
     #save initalizations in case we're doing Lottery Ticket
@@ -156,7 +145,7 @@ if __name__ == "__main__":
     
     
     # Setup and split dataset
-    full_dataset = mnist_dataset.MnistDataset(options.inputFile,yamlConfig)
+    full_dataset = MnistDataset(options.inputFile,yamlConfig)
     torch.set_printoptions(profile="full")
     #print(full_dataset[0][0])
     #print(full_dataset[0][1])
@@ -173,7 +162,7 @@ if __name__ == "__main__":
 
     train_dataset, val_dataset = torch.utils.data.random_split(full_dataset,[train_size,val_size])
     
-    test_dataset = mnist_dataset.MnistDataset(options.test, yamlConfig)
+    test_dataset = MnistDataset(options.test, yamlConfig)
 
     test_size = len(test_dataset)
     #np.savetxt('output/testx.gz', test_dataset.x)
@@ -210,7 +199,7 @@ if __name__ == "__main__":
 
         print("~!~!~!~!~!~!~!! Starting Train/Prune Cycle for {}b model! !!~!~!~!~!~!~!~".format(nbits))
         #write to log file
-        with open("output/log.txt", "a") as f:
+        with open(outputDir + '\log.txt', "a") as f:
                 f.write("~!~!~!~!~!~!~!! Starting Train/Prune Cycle for {}b model! !!~!~!~!~!~!~!~".format(nbits))
                 f.write('\n')
         
@@ -218,7 +207,7 @@ if __name__ == "__main__":
         for prune_value in prune_value_set:
 
              #write to log file
-            with open("output/log.txt", "a") as f:
+            with open(outputDir + '\log.txt', "a") as f:
                 if (prune_value_set.index(prune_value) == (len(prune_value_set) - 1)):
                     #f.write(','.join(str(x) for x in prune_value_set))
                     f.write("Fine-tuning pre-pruned network")    
@@ -328,7 +317,7 @@ if __name__ == "__main__":
             #loss_ax.legend()
             #filename = 'loss_plot_{}b_e{}_{}_.png'.format(nbits,epoch_counter,time)
             #loss_ax.set_title('Loss from epoch {} to {}, {}b model'.format(last_stop,epoch_counter,nbits))
-            #loss_plt.savefig(path.join(options.outputDir, filename), bbox_inches='tight')
+            #loss_plt.savefig(path.join(outputDir, filename), bbox_inches='tight')
             #loss_plt.show()
             #plt.close(loss_plt)
             
@@ -345,19 +334,19 @@ if __name__ == "__main__":
                 base_params,_,_,_ = countNonZeroWeights(model)
                 accuracy_score_value_list, roc_auc_score_list = test(model, test_loader, pruned_params=0,
                                                                             base_params=base_params, nbits=nbits, 
-                                                                            outputDir=options.outputDir, device=device,test_dataset_labels=test_dataset.labels_list)
+                                                                            outputDir=outputDir, device=device,test_dataset_labels=test_dataset.labels_list)
                 base_accuracy_score = np.average(accuracy_score_value_list)
                 print("Base Accuracy Score: ", accuracy_score_value_list)
-                with open("output/log.txt", "a") as f:
+                with open(outputDir + "/log.txt", "a") as f:
                     #f.write(''.join(str(x) for x in accuracy_score_value_list))
                     f.write("Base Accuracy Score = {}".format(base_accuracy_score))
                     f.write('\n')
                 base_roc_score = np.average(roc_auc_score_list)
-                filename = path.join(options.outputDir, 'weight_dist_{}b_Base_{}.png'.format(nbits, time))
+                filename = path.join(outputDir, 'weight_dist_{}b_Base_{}.png'.format(nbits, time))
                 #plot_kernels(model, text=' (Unpruned FP Model)', output=filename)
-                if not path.exists(path.join(options.outputDir,'models','{}b'.format(nbits))):
-                    os.makedirs(path.join(options.outputDir,'models','{}b'.format(nbits)))
-                model_filename = path.join(options.outputDir,'models','{}b'.format(nbits), "{}b_unpruned_{}.pth".format(nbits, time))
+                if not path.exists(path.join(outputDir,'models','{}b'.format(nbits))):
+                    os.makedirs(path.join(outputDir,'models','{}b'.format(nbits)))
+                model_filename = path.join(outputDir,'models','{}b'.format(nbits), "{}b_unpruned.pth".format(nbits))
                 torch.save(model.state_dict(),model_filename)
                 first_run = False
             elif first_quant:
@@ -366,18 +355,18 @@ if __name__ == "__main__":
                 base_quant_params,_,_,_ = countNonZeroWeights(model)
                 accuracy_score_value_list, roc_auc_score_list = test(model, test_loader, pruned_params=0,
                                                                             base_params=base_params, nbits=nbits, 
-                                                                            outputDir=options.outputDir, device=device,test_dataset_labels=test_dataset.labels_list)
+                                                                            outputDir=outputDir, device=device,test_dataset_labels=test_dataset.labels_list)
                 base_quant_accuracy_score = np.average(accuracy_score_value_list)
                 print("Base Quant Accuracy Score: ", base_quant_accuracy_score)
                 with open("output/log.txt", "a") as f:
                     f.write("Base Quant Accuracy Score = {}".format(base_quant_accuracy_score))
                     f.write('\n')
                 base_quant_roc_score = np.average(roc_auc_score_list)
-                filename = path.join(options.outputDir, 'weight_dist_{}b_qBase_{}.png'.format(nbits, time))
+                filename = path.join(outputDir, 'weight_dist_{}b_qBase_{}.png'.format(nbits, time))
                 #plot_kernels(model, text=' (Unpruned Quant Model)', output=filename)
-                if not path.exists(path.join(options.outputDir,'models','{}b'.format(nbits))):
-                    os.makedirs(path.join(options.outputDir,'models','{}b'.format(nbits)))
-                model_filename = path.join(options.outputDir,'models','{}b'.format(nbits), "{}b_unpruned_{}.pth".format(nbits, time))
+                if not path.exists(path.join(outputDir,'models','{}b'.format(nbits))):
+                    os.makedirs(path.join(outputDir,'models','{}b'.format(nbits)))
+                model_filename = path.join(outputDir,'models','{}b'.format(nbits), "{}b_unpruned.pth".format(nbits))
                 torch.save(model.state_dict(),model_filename)
                 first_quant = False
             else:
@@ -385,19 +374,19 @@ if __name__ == "__main__":
                 current_params,_,_,_ = countNonZeroWeights(model)
                 accuracy_score_value_list, roc_auc_score_list = test(model, test_loader, pruned_params=0,
                                                                             base_params=base_params, nbits=nbits, 
-                                                                            outputDir=options.outputDir, device=device,test_dataset_labels=test_dataset.labels_list)
+                                                                            outputDir=outputDir, device=device,test_dataset_labels=test_dataset.labels_list)
                 accuracy_score_value = np.average(accuracy_score_value_list)
                 print("Accuracy Score Value: ", accuracy_score_value )
-                with open("output/log.txt", "a") as f:
+                with open(outputDir + "/log.txt", "a") as f:
                     f.write("Accuracy Score Value = {}".format(accuracy_score_value))
                     f.write('\n')
                 roc_auc_score_value = np.average(roc_auc_score_list)
                 prune_results.append(1 / (accuracy_score_value / base_accuracy_score))
                 prune_roc_results.append(1/ (roc_auc_score_value/ base_roc_score))
                 bit_params.append(current_params * nbits)
-                if not path.exists(path.join(options.outputDir,'models','{}b'.format(nbits))):
-                    os.makedirs(path.join(options.outputDir,'models','{}b'.format(nbits)))
-                model_filename = path.join(options.outputDir,'models','{}b'.format(nbits),"{}b_{}pruned_{}.pth".format(nbits, (base_params-current_params), time))
+                if not path.exists(path.join(outputDir,'models','{}b'.format(nbits))):
+                    os.makedirs(path.join(outputDir,'models','{}b'.format(nbits)))
+                model_filename = path.join(outputDir,'models','{}b'.format(nbits),"{}b_{}pruned.pth".format(nbits, (base_params-current_params)))
                 torch.save(model.state_dict(),model_filename)
 
             # Prune for next iter
@@ -406,7 +395,7 @@ if __name__ == "__main__":
                 pruning_level = pruning_level - pruning_level*prune_value
                 model = prune_model(model, prune_value, prune_mask)
                 # Plot weight dist
-                filename = path.join(options.outputDir, 'weight_dist_{}b_e{}_{}.png'.format(nbits, epoch_counter, time))
+                filename = path.join(outputDir, 'weight_dist_{}b_e{}_{}.png'.format(nbits, epoch_counter, time))
                 print("Post Pruning: ")
                 pruned_params,_,_,_ = countNonZeroWeights(model)
                 #plot_kernels(model,
@@ -426,7 +415,7 @@ if __name__ == "__main__":
         model_totalloss_json_dict.update({nbits:[model_loss,model_eff,model_estop]})
 
     filename = 'model_losses_{}.json'.format(options.model_set.replace(",","_"))
-    with open(os.path.join(options.outputDir, filename), 'w') as fp:
+    with open(os.path.join(outputDir, filename), 'w') as fp:
         json.dump(model_totalloss_json_dict, fp)
 
     if base_quant_params == None:
@@ -440,7 +429,7 @@ if __name__ == "__main__":
         base_roc_set = [[base_params, base_roc_score],
                         [base_quant_params, base_quant_roc_score]]
     # Plot metrics
-    #plot_total_loss(model_set, model_totalloss_set, model_estop_set, outputDir=options.outputDir)
-    #plot_total_eff(model_set,model_eff_set,model_estop_set, outputDir=options.outputDir)
-    #plot_metric_vs_bitparam(model_set,prune_result_set,bit_params_set,base_acc_set,metric_text='ACC',outputDir=options.outputDir)
-    #plot_metric_vs_bitparam(model_set, prune_result_set, bit_params_set, base_roc_set, metric_text='ROC',outputDir=options.outputDir)
+    #plot_total_loss(model_set, model_totalloss_set, model_estop_set, outputDir=outputDir)
+    #plot_total_eff(model_set,model_eff_set,model_estop_set, outputDir=outputDir)
+    #plot_metric_vs_bitparam(model_set,prune_result_set,bit_params_set,base_acc_set,metric_text='ACC',outputDir=outputDir)
+    #plot_metric_vs_bitparam(model_set, prune_result_set, bit_params_set, base_roc_set, metric_text='ROC',outputDir=outputDir)
