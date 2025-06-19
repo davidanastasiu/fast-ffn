@@ -50,8 +50,14 @@ The trained moodels are moved to Radixnets/RadixNet_Trained_Models folder upon t
   ```bash
    python onnx_export -L 2
    ```
-
-5. Use "TestResult_Merging.ipynb" to combine the 3 parts in "./test" to generate the final prediction file.
+The exported model can be used to read out the scale factors. Currently, this is a manual process wherein a .csv file (scales.csv) of scale factors needs to be created as shown below.
+'''
+0.1333988755941391,0.120303675532341,0.16123564541339874
+0.048998039215803146,0.05251426622271538,0.053872428834438324
+0.006536283530294895,0.00631765928119421,0.008686156012117863
+0.120303675532341,0.16123564541339874
+,,,
+4. Use "TestResult_Merging.ipynb" to combine the 3 parts in "./test" to generate the final prediction file.
 
 ## Inference mode
 
