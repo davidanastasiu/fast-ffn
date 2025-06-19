@@ -58,10 +58,10 @@ The exported model can be used to read out the scale factors. Currently, this is
 0.120303675532341,0.16123564541339874
 ```
 The scales.csv file is organized as follows:
-Line 1. Input scales of all layers
-Line 2. weight scales of all layers
-Line 3. bias scales of all layers
-Line 4. Activation scales of all layers
+Line 1. Input scales of all layers \
+Line 2. weight scales of all layers \
+Line 3. bias scales of all layers \
+Line 4. Activation scales of all layers \
 
 4. Use "TestResult_Merging.ipynb" to combine the 3 parts in "./test" to generate the final prediction file.
 
