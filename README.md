@@ -28,7 +28,7 @@ We completed the FPGA design flow (C-Simulation->C-Synthesis->C/RTL Cos-simulati
 
 ## Files organization
 
-This project is organized into 5 sub-folders. These folders are listed below in the order they need to be acessed to generate the FPGA accelerator code.
+This project is organized into 4 main sub-folders. These folders are listed below in the order they need to be acessed to generate the FPGA accelerator code.
 
 The 4 Folders:
 
