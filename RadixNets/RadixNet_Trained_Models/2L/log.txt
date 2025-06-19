@@ -1,0 +1,10 @@
+~!~!~!~!~!~!~!! Starting Train/Prune Cycle for 32b model! !!~!~!~!~!~!~!~
+Training pre-pruned network
+Base Accuracy Score = 0.9509
+Training pre-pruned network
+Accuracy Score Value = 0.954
+~!~!~!~!~!~!~!! Starting Train/Prune Cycle for 4b model! !!~!~!~!~!~!~!~
+Training pre-pruned network
+Base Accuracy Score = 0.9419
+Training pre-pruned network
+Accuracy Score Value = 0.9514
