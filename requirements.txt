@@ -1,0 +1,6 @@
+h5pickle
+brevitas
+Ipython
+netron
+onnx
+onnxoptimizer
