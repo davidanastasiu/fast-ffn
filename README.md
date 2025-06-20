@@ -21,12 +21,7 @@ conda install scikit-learn
 conda install pandas
 conda install matplotlib
 conda install seaborn
-pip install h5pickle
-pip install brevitas
-pip install Ipython
-pip install netron
-pip install onnx
-pip install onnxoptimizer
+pip install -r requirements.txt
 
 ```
 We completed the FPGA design flow (C-Simulation->C-Synthesis->C/RTL Cos-simulation->Implementation) using the accelerator code in the Vitis HLS (2024.2) environment.
