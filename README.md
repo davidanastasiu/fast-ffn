@@ -1,5 +1,5 @@
 # fast-ffn
-We present FAST_FFN, a highly efficient way of deploying large Feed Forward Networks(FFNs) on FPGAs. We detail our work in our paper, "Efficient Deployment of Very Wide and Very Deep Hypersparse FFNs on FPGA" which will be presented at ISVLSI 2025. If you make use of our code or data, please cite our paper.
+We present fast-ffn, a highly efficient way of deploying large Feed Forward Networks(FFNs) on FPGAs. We detail our work in our paper, "Efficient Deployment of Very Wide and Very Deep Hypersparse FFNs on FPGA" which will be presented at ISVLSI 2025. If you make use of our code or data, please cite our paper.
 
 ```bibtex
 @inproceedings{singh-SinghA2025,
