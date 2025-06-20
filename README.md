@@ -43,7 +43,7 @@ The 4 Folders:
 4. "FPGA"
 
 ###
-1.  The Radixnet folder hosts pre-pruned FFN architectures. RadixNet pre-pruning is employed to generate these FFNs. Our code includes RadixNet architectures in the Radixnets/RadixNet_Masks folder. These FFNs are stored using a tab separated value (.tsv) format. We used the repository available at (https://github.com/Graphegon/pygraphblas/blob/main/demo/RadiX-Net-with-pygraphblas.ipynb) to generate RadixNet architectures. In addition to hosting RadixNet architectures, this module also serves as the repository for trained FFN models, and the code to generate the masks required to train such models.  
+1.  The Radixnet folder hosts pre-pruned FFN architectures. RadixNet pre-pruning is employed to generate these FFNs. Our code includes RadixNet architectures in the Radixnets/RadixNet_Masks folder. These FFNs are stored using a tab separated value (.tsv) format. We used the repository available at (https://github.com/Graphegon/pygraphblas/blob/main/demo/RadiX-Net-with-pygraphblas.ipynb) to generate RadixNet architectures. In addition to hosting RadixNet architectures, this module also serves as the repository for trained FFN models, and the code to generate the masks required to train such models. In the future we intend to release our own library to generate a variety of RadiXNets.
 
 ###
 2. The Training folder contains the training code for training the RadixNet pre-pruned FFNs. FFNs can be trained using the command shown below, where -m indicates the bitwidth of model weights and -L indicates the number of layers in the FFN.
@@ -57,7 +57,7 @@ The trained moodels are moved to Radixnets/RadixNet_Trained_Models folder upon t
   ```bash
    python onnxexport -L 2
    ```
-The exported model can be used to read out the scale factors. Currently, this is a manual process wherein a .csv file (scales.csv) of scale factors needs to be created as shown below.
+The exported model can be used to read out the scale factors. Currently, this is a manual process wherein a .csv file (scales.csv) of scale factors needs to be created as shown below. We plan to automate the extraction of scale factors from the onnx representation in the future.
 ```bash
 0.1333988755941391,0.120303675532341,0.16123564541339874
 0.048998039215803146,0.05251426622271538,0.053872428834438324
