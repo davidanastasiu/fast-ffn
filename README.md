@@ -79,4 +79,4 @@ weights.h
 X_test.dat
 Y_test.dat
 ```
-While creating the component in Vitis HLS, mlp_tb.cpp should be selected as the test bench file and MLP.cpp, mlp.h, weights.h should be selected as source files. X_test.dat and Y_test.dat serve as the test vectors accessed by the tesst bench to validate the component.
+While creating the component in Vitis HLS, mlp_tb.cpp should be selected as the test bench file and MLP.cpp, mlp.h and weights.h files should be selected as source files. X_test.dat and Y_test.dat serve as the test vectors accessed by the tesst bench to validate the component.
