@@ -7,9 +7,10 @@ import itertools
 
 class get_mask:
 
-    def __init__(self,n_layers, neuron_len):
+    def __init__(self,n_layers, neuron_len, prefix):
         self.n_layers = n_layers
         self.neuron_len = neuron_len
+        self.prefix = prefix
         #create standard mask of n_layers + output layer 
         standard_mask = {}
         for i in range(n_layers):
@@ -29,7 +30,7 @@ class get_mask:
             parametercount = 0
             neuroncount = 0
             linecount = 0
-            with open('../RadixNets/RadixNet_Masks/tsvs/tsv_' + str(self.n_layers) + '/l' + str(i+1) + '.tsv') as tsv:
+            with open(self.prefix + str(self.n_layers) + '/l' + str(i+1) + '.tsv') as tsv:
                 for line in csv.reader(tsv, dialect="excel-tab"):
                     parametercount = parametercount+1
                     v = int(line[0])-1 #use indices from .tsv
